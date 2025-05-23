@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Batch Manufacturing Record</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-7xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-4">Interactive Batch Manufacturing Record</h1>
+        
+        <!-- Export Buttons -->
+        <div class="mb-6">
+            <button id="exportBtn" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Export</button>
+            <button id="exportPDFBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Export to PDF</button>
+        </div>
+
+        <!-- 1. Product Details -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">1. Product Details</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="productName" placeholder="Product Name" class="border p-2 rounded">
+                <input type="text" id="colour" placeholder="Colour" class="border p-2 rounded">
+                <input type="text" id="shape" placeholder="Shape" class="border p-2 rounded">
+                <input type="text" id="batchSize" placeholder="Batch/Lot Size" class="border p-2 rounded">
+                <input type="text" id="quantity" placeholder="Approx. Quantity" class="border p-2 rounded">
+                <input type="text" id="packages" placeholder="Primary and Secondary Packages" class="border p-2 rounded">
+                <input type="text" id="storage" placeholder="Storage Conditions" class="border p-2 rounded">
+            </div>
+            <button id="saveProductDetails" class="bg-green-500 text-white px-4 py-2 rounded mt-4">Save Product Details</button>
+        </section>
+
+        <!-- 2. Reference Documents -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">2. Reference Documents</h2>
+            <table class="w-full border-collapse border">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Document Description</th>
+                        <th class="border p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="refDocsTable"></tbody>
+            </table>
+            <div class="mt-4">
+                <input type="text" id="preparedBy" placeholder="Prepared By" class="border p-2 rounded">
+                <div class="mt-2">
+                    <canvas id="signatureCanvas2" class="border" width="300" height="100"></canvas>
+                    <div>
+                        <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="2">Draw</button>
+                        <input type="file" class="uploadBtn" data-section="2" accept="image/*" style="display: none;">
+                        <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="2">Upload</button>
+                        <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="2">Clear</button>
+                        <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="2">Remove</button>
+                    </div>
+                </div>
+                <input type="text" id="date2" placeholder="Date" class="border p-2 rounded mt-2">
+            </div>
+            <button id="addDocument" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Add Document</button>
+            <button id="saveRefDocs" class="bg-green-500 text-white px-4 py-2 rounded mt-2">Save Reference Documents</button>
+        </section>
+
+        <!-- 3. Raw Materials -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">3. Raw Materials</h2>
+            <table class="w-full border-collapse border">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Description</th>
+                        <th class="border p-2">Item Number</th>
+                        <th class="border p-2">Quantity Required (kg)</th>
+                        <th class="border p-2">Lot Number</th>
+                        <th class="border p-2">Qty Staged</th>
+                        <th class="border p-2">Performed By</th>
+                        <th class="border p-2">Checked By</th>
+                        <th class="border p-2">Verified By</th>
+                        <th class="border p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="rawMaterialsTable"></tbody>
+            </table>
+            <button id="addRawMaterial" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Add Raw Material</button>
+            <button id="saveRawMaterials" class="bg-green-500 text-white px-4 py-2 rounded mt-2">Save Raw Materials</button>
+        </section>
+
+        <!-- 4. Processing Equipment -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">4. Processing Equipment</h2>
+            <table class="w-full border-collapse border">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Equipment Description</th>
+                        <th class="border p-2">ID No.</th>
+                        <th class="border p-2">Previous Calibration</th>
+                        <th class="border p-2">Calibration Required</th>
+                        <th class="border p-2">Performed By/Date</th>
+                        <th class="border p-2">Verified By/Date</th>
+                        <th class="border p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="equipmentTable"></tbody>
+            </table>
+            <button id="addEquipment" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Add Equipment</button>
+            <button id="saveEquipment" class="bg-green-500 text-white px-4 py-2 rounded mt-2">Save Equipment</button>
+        </section>
+
+        <!-- 5. Area Clearance -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">5. Area Clearance</h2>
+            <table class="w-full border-collapse border">
+                <thead>
+                    <tr>
+                        <th class="border p-2">S/No</th>
+                        <th class="border p-2">Step</th>
+                        <th class="border p-2">Performed By/Date</th>
+                        <th class="border p-2">Verified By/Date</th>
+                        <th class="border p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="areaClearanceTable"></tbody>
+            </table>
+            <div class="mt-4">
+                <input type="text" id="preparedByQA" placeholder="Prepared By (QA Division Head)" class="border p-2 rounded">
+                <div class="mt-2">
+                    <canvas id="signatureCanvas5QA" class="border" width="300" height="100"></canvas>
+                    <div>
+                        <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="5QA">Draw</button>
+                        <input type="file" class="uploadBtn" data-section="5QA" accept="image/*" style="display: none;">
+                        <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="5QA">Upload</button>
+                        <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="5QA">Clear</button>
+                        <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="5QA">Remove</button>
+                    </div>
+                </div>
+                <input type="text" id="date5QA" placeholder="Date" class="border p-2 rounded mt-2">
+                <input type="text" id="verifiedByRQAS" placeholder="Verified By (RQAS Manager)" class="border p-2 rounded mt-2">
+                <div class="mt-2">
+                    <canvas id="signatureCanvas5RQAS" class="border" width="300" height="100"></canvas>
+                    <div>
+                        <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="5RQAS">Draw</button>
+                        <input type="file" class="uploadBtn" data-section="5RQAS" accept="image/*" style="display: none;">
+                        <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="5RQAS">Upload</button>
+                        <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="5RQAS">Clear</button>
+                        <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="5RQAS">Remove</button>
+                    </div>
+                </div>
+                <input type="text" id="date5RQAS" placeholder="Date" class="border p-2 rounded mt-2">
+            </div>
+            <button id="addAreaStep" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Add Step</button>
+            <button id="saveAreaClearance" class="bg-green-500 text-white px-4 py-2 rounded mt-2">Save Area Clearance</button>
+        </section>
+
+        <!-- 6. Production Procedure -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">6. Production Procedure</h2>
+            <table class="w-full border-collapse border">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Step</th>
+                        <th class="border p-2">Performed By/Date</th>
+                        <th class="border p-2">Verified By/Date</th>
+                        <th class="border p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="procedureTable"></tbody>
+            </table>
+            <button id="addProcedureStep" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Add Step</button>
+            <button id="saveProcedure" class="bg-green-500 text-white px-4 py-2 rounded mt-2">Save Procedure</button>
+        </section>
+
+        <!-- 7. Sampling, Material Transfer, and Storage -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">7. Sampling, Material Transfer, and Storage</h2>
+            <table class="w-full border-collapse border">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Description</th>
+                        <th class="border p-2">Performed By/Date</th>
+                        <th class="border p-2">Verified By/Date</th>
+                    </tr>
+                </thead>
+                <tbody id="samplingTable">
+                    <tr>
+                        <td class="border p-2">Raw material (fabric): verified COA as attached</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">Raw material (chemicals): is verified at arrival as attached</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">Finished fabric: checked as attached</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">Packing condition: is checked using stratified random sample as attached</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">Finished good is transferred to warehouse after getting approval of quality assurance</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">Storage is clean, dry, and ventilated</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button id="saveSampling" class="bg-green-500 text-white px-4 py-2 rounded mt-4">Save Section 7</button>
+        </section>
+
+        <!-- 8. Production Batch Record Issuance -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">8. Production Batch Record Issuance</h2>
+            <div class="mb-4">
+                <p>Issued By: Production has approved and signed the batch record to ensure that the copy is a complete, accurate copy of the master batch record.</p>
+                <input type="text" id="issuedByProduction" placeholder="Issued By (Production)" class="border p-2 rounded mt-2">
+                <div class="mt-2">
+                    <canvas id="signatureCanvas8Production" class="border" width="300" height="100"></canvas>
+                    <div>
+                        <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="8Production">Draw</button>
+                        <input type="file" class="uploadBtn" data-section="8Production" accept="image/*" style="display: none;">
+                        <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="8Production">Upload</button>
+                        <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="8Production">Clear</button>
+                        <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="8Production">Remove</button>
+                    </div>
+                </div>
+                <input type="text" id="date8Production" placeholder="Date" class="border p-2 rounded mt-2">
+            </div>
+            <div class="mb-4">
+                <p>Issued To: Research and Quality Assurance Service has reviewed the Batch Record to ensure that the copy is a complete and correct.</p>
+                <input type="text" id="issuedToRQAS" placeholder="Issued To (RQAS)" class="border p-2 rounded mt-2">
+                <div class="mt-2">
+                    <canvas id="signatureCanvas8RQAS" class="border" width="300" height="100"></canvas>
+                    <div>
+                        <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="8RQAS">Draw</button>
+                        <input type="file" class="uploadBtn" data-section="8RQAS" accept="image/*" style="display: none;">
+                        <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="8RQAS">Upload</button>
+                        <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="8RQAS">Clear</button>
+                        <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="8RQAS">Remove</button>
+                    </div>
+                </div>
+                <input type="text" id="date8RQAS" placeholder="Date" class="border p-2 rounded mt-2">
+            </div>
+            <button id="saveBatchIssuance" class="bg-green-500 text-white px-4 py-2 rounded mt-4">Save Batch Issuance</button>
+        </section>
+
+        <!-- 9. Post Production Review -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">9. Post Production Review</h2>
+            <p>The complete Post-Production Batch Record has been reviewed for completeness and accuracy. All pages are complete and all entries conform to Good Documentation Practices.</p>
+            <table class="w-full border-collapse border">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Department</th>
+                        <th class="border p-2">Name</th>
+                        <th class="border p-2">Signature</th>
+                        <th class="border p-2">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border p-2">Gauze Bleaching & Finishing Production Department</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2">
+                            <canvas id="signatureCanvas9Production" class="border" width="300" height="100"></canvas>
+                            <div>
+                                <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="9Production">Draw</button>
+                                <input type="file" class="uploadBtn" data-section="9Production" accept="image/*" style="display: none;">
+                                <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="9Production">Upload</button>
+                                <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="9Production">Clear</button>
+                                <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="9Production">Remove</button>
+                            </div>
+                        </td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">RQAS</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2">
+                            <canvas id="signatureCanvas9RQAS" class="border" width="300" height="100"></canvas>
+                            <div>
+                                <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="9RQAS">Draw</button>
+                                <input type="file" class="uploadBtn" data-section="9RQAS" accept="image/*" style="display: none;">
+                                <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="9RQAS">Upload</button>
+                                <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="9RQAS">Clear</button>
+                                <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="9RQAS">Remove</button>
+                            </div>
+                        </td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button id="savePostProduction" class="bg-green-500 text-white px-4 py-2 rounded mt-4">Save Post Production Review</button>
+        </section>
+
+        <!-- 10. Product Release -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">10. Product Release</h2>
+            <p>The material produced through the execution of this Batch Record shall be released by RQAS according to Product Release Procedure.</p>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <input type="text" id="lotNo" placeholder="Lot No" class="border p-2 rounded">
+                <input type="text" id="mfgDate" placeholder="MFG Date" class="border p-2 rounded">
+                <input type="text" id="expDate" placeholder="EXP Date" class="border p-2 rounded">
+            </div>
+            <table class="w-full border-collapse border">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Role</th>
+                        <th class="border p-2">Name</th>
+                        <th class="border p-2">Signature</th>
+                        <th class="border p-2">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border p-2">Gauze Bleaching And Finishing Production Department Manager</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2">
+                            <canvas id="signatureCanvas10Production" class="border" width="300" height="100"></canvas>
+                            <div>
+                                <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="10Production">Draw</button>
+                                <input type="file" class="uploadBtn" data-section="10Production" accept="image/*" style="display: none;">
+                                <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="10Production">Upload</button>
+                                <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="10Production">Clear</button>
+                                <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="10Production">Remove</button>
+                            </div>
+                        </td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">Bleaching & Finishing Quality Assurance Division Head</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2">
+                            <canvas id="signatureCanvas10QA" class="border" width="300" height="100"></canvas>
+                            <div>
+                                <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="10QA">Draw</button>
+                                <input type="file" class="uploadBtn" data-section="10QA" accept="image/*" style="display: none;">
+                                <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="10QA">Upload</button>
+                                <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="10QA">Clear</button>
+                                <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="10QA">Remove</button>
+                            </div>
+                        </td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                    <tr>
+                        <td class="border p-2">RQAS Manager</td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                        <td class="border p-2">
+                            <canvas id="signatureCanvas10RQAS" class="border" width="300" height="100"></canvas>
+                            <div>
+                                <button class="drawBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="10RQAS">Draw</button>
+                                <input type="file" class="uploadBtn" data-section="10RQAS" accept="image/*" style="display: none;">
+                                <button class="uploadTriggerBtn bg-blue-500 text-white px-2 py-1 rounded" data-section="10RQAS">Upload</button>
+                                <button class="clearBtn bg-yellow-500 text-white px-2 py-1 rounded" data-section="10RQAS">Clear</button>
+                                <button class="removeBtn bg-red-500 text-white px-2 py-1 rounded" data-section="10RQAS">Remove</button>
+                            </div>
+                        </td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button id="saveProductRelease" class="bg-green-500 text-white px-4 py-2 rounded mt-4">Save Product Release</button>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
